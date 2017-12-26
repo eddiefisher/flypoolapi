@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"home.dev/toster/flypoolapi/api"
@@ -15,6 +16,10 @@ import (
 func main() {
 	_wallet := flag.String("w", "", "Wallet.")
 	wallet := *_wallet
+	if wallet == "" {
+		flag.PrintDefaults()
+		os.Exit(1)
+	}
 	endpoints := endpoint.Endpoints{
 		{"Ethermine.org", "https://api.ethermine.org"},
 		{"Ethpool.org", "http://api.ethpool.org"},
