@@ -1,4 +1,4 @@
-##Flypool API
+## Flypool API
 
 получение баланса от Flypool
 
@@ -11,15 +11,15 @@
     - компилируем: make build
     - запускаем: ./bin/flypoolapi -w "wallet_id"
 
-##Install
+## Install
 
     go get home.dev/toster/flypoolapi
 
-##Author
+## Author
 
 Eddie Fisher [eddi.fisher@gmail.com]
 
-##Copyright & License
+## Copyright & License
 
 Copyright (c) 2018, Eddie Fisher.
 All rights reserved.
