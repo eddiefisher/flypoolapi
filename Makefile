@@ -1,12 +1,44 @@
-.PHONY: build run
+.PHONY: build test run
 
-BINARY=flypoolapi
+PROJECT?=github.com/eddiefisher/flypoolapi/src
+APP?=flypoolapi
+PORT?=8000
 
-.DEFAULT_GOAL: $(BINARY)
+GOOS?=linux
+GOARCH?=amd64
 
-# Builds the project
-$(BINARY):
-	go build -v -o ../bin/${BINARY} ./*.go
+RELEASE?=0.0.1
+COMMIT?=$(shell git rev-parse --short HEAD)
+BUILD_TIME?=$(shell date -u '+%Y-%m-%d_%H:%M:%S')
+LDFLAGS?=-ldflags "-w -s \
+	-X ${PROJECT}/version.Release=${RELEASE} \
+	-X ${PROJECT}/version.BuildTime=${BUILD_TIME} \
+	-X ${PROJECT}/version.Commit=${COMMIT}"
 
+clean:
+	docker rmi $(APP):$(RELEASE) || true
+
+buildc: clean
+	cd ./src ; CGO_ENABLED=0 GOOS=${GOOS} GOARCH=${GOARCH} go build ${LDFLAGS} -o ../bin/${APP}
+
+container: buildc
+	docker build -t $(APP):$(RELEASE) .
+
+runc: container
+	docker stop $(APP):$(RELEASE) || true
+	docker run --name ${APP} -p ${PORT}:${PORT} --rm \
+		-e "PORT=${PORT}" \
+		$(APP):$(RELEASE)
+
+# Build the project
+build:
+	cd ./src ; go build ${LDFLAGS} -o ../bin/${APP}
+	sh -c ./bin/${APP}
+
+# Run the project
 run:
-	go run ./*.go
+	cd ./src ; go run -v ./*.go
+
+# Test the project
+test:
+	cd ./src ; go test -v -race ./...
